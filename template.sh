@@ -18,5 +18,10 @@ fi
 
 tag=$1
 version=${tag:1}
+echo "Version: $version"
+echo "Tag: $tag"
 
+mkdir -p snap
 sed "s/<tag>/$tag/g; s/<version>/$version/g" snapcraft.tpl.yaml > snap/snapcraft.yaml
+ 
+echo "Written snap/snapcraft.yaml"
