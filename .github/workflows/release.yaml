@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.client_payload.ref }}
+          ref: ${{ github.event.client_payload.sha }}
       - run: ./template.sh ${{ github.event.client_payload.tag }}
       - uses: snapcore/action-build@v1
         id: build
