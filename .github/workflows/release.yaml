@@ -7,9 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          repository: reknih/typst
-          ref: ${{ github.event.client_payload.sha }}
       - run: ./template.sh ${{ github.event.client_payload.tag }}
       - uses: snapcore/action-build@v1
         id: build
