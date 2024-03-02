@@ -1,0 +1,20 @@
+name: Repository Dispatch
+on:
+  repository_dispatch:
+    types: [typst-release]
+jobs:
+  buildSnap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.ref }}
+      - run: ./template.sh ${{ github.event.client_payload.ref }}
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: edge

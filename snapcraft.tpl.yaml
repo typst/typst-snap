@@ -1,0 +1,32 @@
+name: typst
+base: core22
+version: "<version>"
+summary: A new markup-based typesetting system that is powerful and easy to learn.
+description: |
+  Typst is a new markup-based typesetting system for technical writing.
+  It is designed to be an alternative both to advanced tools like LaTeX
+  and simpler software like Word and Google Docs. Our goal with Typst is to
+  build a typesetting tool that is highly capable and a pleasure to use.
+
+grade: stable
+confinement: strict
+
+parts:
+  rust:
+    plugin: rust
+    source: https://github.com/typst/typst
+    source-type: git
+    source-tag: "<tag>"
+    rust-path:
+      - "./crates/typst-cli/"
+    build-packages:
+       - pkg-config
+
+apps:
+  typst:
+    command: "bin/typst"
+    plugs:
+      - desktop # access host fonts
+      - network # retrieve packages
+      - home    # read sources and write output
+      - removable-media # read sources on media
