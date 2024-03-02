@@ -19,6 +19,8 @@ parts:
     source-tag: "<tag>"
     rust-path:
       - "./crates/typst-cli/"
+    rust-features:
+      - vendor-openssl
     build-packages:
        - pkg-config
 
