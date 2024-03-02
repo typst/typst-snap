@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.client_payload.ref }}
-      - run: ./template.sh ${{ github.event.client_payload.ref }}
+      - run: ./template.sh ${{ github.event.client_payload.tag }}
       - uses: snapcore/action-build@v1
         id: build
       - uses: snapcore/action-publish@v1
