@@ -16,26 +16,35 @@ jobs:
       - uses: actions/checkout@v4
       - name: Read the target tag and store it in the step's output
         id: read-tag
-        run: echo "channel=$(cat target-tag)" >> "$GITHUB_OUTPUT"
+        run: echo "tag=$(cat target-tag)" >> "$GITHUB_OUTPUT"
       - name: Decide the channel based on the tag
         id: decide-channel
+        env:
+          TAG: ${{ steps.read-tag.outputs.tag }}
         run: |
           # Choose the channel based on the tag. If the tag does not contain a
           # hyphen but does contain a "v" prefix, it is a stable release. If the
           # tag contains the string "rc", it is a "candidate" release. If the
           # tag contains the string "beta", it is a "beta" release and otherwise
           # it is an "edge" release.
-          if [[ ! ${{ steps.read-tag.outputs.tag }} =~ "-" && ${{ steps.read-tag.outputs.tag }} =~ "v" ]]; then
+          if [[ ! $TAG =~ "-" && $TAG =~ "v" ]]; then
             echo "channel=stable" >> "$GITHUB_OUTPUT"
-          elif [[ ${{ steps.read-tag.outputs.tag }} =~ "rc" ]]; then
+          elif [[ $TAG =~ "rc" ]]; then
             echo "channel=candidate" >> "$GITHUB_OUTPUT"
-          elif [[ ${{ steps.read-tag.outputs.tag }} =~ "beta" ]]; then
+          elif [[ $TAG =~ "beta" ]]; then
             echo "channel=beta" >> "$GITHUB_OUTPUT"
           else
             echo "channel=edge" >> "$GITHUB_OUTPUT"
           fi
-      - run: echo "Building ${{ steps.read-tag.outputs.tag }} for the ${{ steps.decide-channel.outputs.channel }} channel"
-      - run: ./template.sh ${{ steps.read-tag.outputs.tag }}
+      - name: Echo the channel
+        env:
+          TAG: ${{ steps.read-tag.outputs.tag }}
+          CHANNEL: ${{ steps.decide-channel.outputs.channel }}
+        run: echo "Building $TAG for the $CHANNEL channel"
+      - name: Populate the snapcraft.yaml
+        env:
+          TAG: ${{ steps.read-tag.outputs.tag }}
+        run: ./template.sh $TAG
       - uses: snapcore/action-build@v1
         id: build
       - uses: snapcore/action-publish@v1
