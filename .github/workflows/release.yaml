@@ -5,20 +5,11 @@ on:
 jobs:
   buildSnap:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform:
-        - amd64
-        - armhf
-        - arm64
     steps:
       - uses: actions/checkout@v4
       - run: ./template.sh ${{ github.event.client_payload.tag }}
-      - uses: docker/setup-qemu-action@v1
-      - uses: diddlesnaps/snapcraft-multiarch-action@v1
+      - uses: snapcore/action-build@v1
         id: build
-        with:
-          architecture: ${{ matrix.platform }}
       - uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
