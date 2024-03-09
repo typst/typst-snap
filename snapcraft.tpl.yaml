@@ -14,7 +14,7 @@ confinement: strict
 parts:
   rust:
     plugin: rust
-    source: https://github.com/reknih/typst
+    source: https://github.com/typst/typst
     source-type: git
     source-tag: "<tag>"
     rust-path:
