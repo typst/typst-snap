@@ -1,0 +1,31 @@
+# Triggered by a release in the Typst repository, this workflow builds and
+# publishes a snap to the Snap Store.
+name: Repository Dispatch
+on:
+  repository_dispatch:
+    types: [typst-release]
+
+env:
+  # Do not run if the tag does not start with "v"
+  does-run: ${{ startsWith(github.event.client_payload.tag, 'v') }}
+  # Choose the channel based on the tag. If the tag does not contain a hyphen,
+  # it is a stable release. If the tag contains the string "rc", it is a
+  # "candidate" release. If the tag contains the string "beta", it is a "beta"
+  # release and otherwise it is an "edge" release.
+  channel: ${{ !contains(github.event.client_payload.tag, '-') && 'stable' || contains(github.event.client_payload.tag, 'rc') && 'candidate' || contains(github.event.client_payload.tag, 'beta') && 'beta' || 'edge' }}
+
+jobs:
+  buildSnap:
+    runs-on: ubuntu-latest
+    if: ${{ env.does-run }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./template.sh ${{ github.event.client_payload.tag }}
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: ${{ env.channel }}

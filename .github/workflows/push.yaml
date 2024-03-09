@@ -1,0 +1,46 @@
+# Triggered by a push with [release] in the title on this repository, this
+# workflow builds and publishes a snap to the Snap Store. 
+#
+# The Typst Ref name is stored in the `target-tag` file at the repository root.
+name: Push
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  buildSnap:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, '[release]')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the target tag and store it in the step's output
+        id: read-tag
+        run: echo "channel=$(cat target-tag)" >> "$GITHUB_OUTPUT"
+      - name: Decide the channel based on the tag
+        id: decide-channel
+        run: |
+          # Choose the channel based on the tag. If the tag does not contain a
+          # hyphen but does contain a "v" prefix, it is a stable release. If the
+          # tag contains the string "rc", it is a "candidate" release. If the
+          # tag contains the string "beta", it is a "beta" release and otherwise
+          # it is an "edge" release.
+          if [[ ! ${{ steps.read-tag.outputs.tag }} =~ "-" && ${{ steps.read-tag.outputs.tag }} =~ "v" ]]; then
+            echo "channel=stable" >> "$GITHUB_OUTPUT"
+          elif [[ ${{ steps.read-tag.outputs.tag }} =~ "rc" ]]; then
+            echo "channel=candidate" >> "$GITHUB_OUTPUT"
+          elif [[ ${{ steps.read-tag.outputs.tag }} =~ "beta" ]]; then
+            echo "channel=beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "channel=edge" >> "$GITHUB_OUTPUT"
+          fi
+      - run: echo "Building ${{ steps.read-tag.outputs.tag }} for the ${{ steps.decide-channel.outputs.channel }} channel"
+      - run: ./template.sh ${{ steps.read-tag.outputs.tag }}
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: ${{ steps.decide-channel.outputs.channel }}

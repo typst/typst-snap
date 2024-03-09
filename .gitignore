@@ -1,2 +1,4 @@
 .DS_Store
 snap/snapcraft.yaml
+github-repo-pat
+snapcraft-store-token
