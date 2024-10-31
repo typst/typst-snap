@@ -11,6 +11,19 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+if [[ "$1" = "main"  ]]; then
+    tag=$1
+    version=git-$(date +"%Y-%m-%dT%H:%M:%SZ")
+    echo "Version: $version"
+    echo "Tag: $tag"
+
+    mkdir -p snap
+    sed "s/source-tag: \"<tag>\"/source-branch: $tag/g; s/<version>/$version/g" snapcraft.tpl.yaml > snap/snapcraft.yaml
+    
+    echo "Written snap/snapcraft.yaml"
+    exit 0
+fi
+
 if [[ ! "$1" =~ ^v ]]; then
     echo "Argument must start with a 'v'"
     exit 1
