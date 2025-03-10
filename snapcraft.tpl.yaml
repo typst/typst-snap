@@ -31,6 +31,16 @@ parts:
     build-packages:
        - pkg-config
 
+plugs:
+  dot-local-share-typst:
+    interface: personal-files
+    write:
+    - $HOME/.local/share/typst
+  dot-cache-typst:
+    interface: personal-files
+    write:
+    - $HOME/.cache/typst
+
 apps:
   typst:
     command: "bin/typst"
@@ -39,3 +49,5 @@ apps:
       - network # retrieve packages
       - home    # read sources and write output
       - removable-media # read sources on media
+      - dot-local-share-typst # read/write ~/.local/share/typst
+      - dot-cache-typst # read/write ~/.cache/typst
