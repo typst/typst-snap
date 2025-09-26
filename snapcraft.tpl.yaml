@@ -39,3 +39,4 @@ apps:
       - network # retrieve packages
       - home    # read sources and write output
       - removable-media # read sources on media
+      - network-bind # serve live HTML in watch mode
