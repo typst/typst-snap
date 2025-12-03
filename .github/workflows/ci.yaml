@@ -1,0 +1,62 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-snap:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: amd64
+            runner: ubuntu-latest
+          - architecture: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Generate snapcraft.yaml from template
+        run: |
+          chmod +x template.sh
+          TAG=$(cat target-tag)
+          ./template.sh $TAG
+
+      - name: Build snap
+        uses: snapcore/action-build@master
+        id: build-snap
+
+      - name: Install snap
+        run: |
+          sudo snap install --dangerous ${{ steps.build-snap.outputs.snap }}
+
+      - name: Test Typst
+        run: |
+          echo "Hello, Typst!" > test.typ
+          typst --version
+          typst compile test.typ
+
+      - name: Verify output PDF
+        run: |
+          if [ -f test.pdf ]; then
+            echo "PDF generated successfully."
+          else
+            echo "PDF generation failed."
+            exit 1
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@main
+        if: always()
+        with:
+          name: snap-${{ matrix.architecture }}
+          path: |
+            *.snap
+            test.typ
+            test.pdf
