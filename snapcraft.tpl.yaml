@@ -1,5 +1,10 @@
 name: typst
 base: core22
+architectures:
+  - build-on: amd64
+    build-for: amd64
+  - build-on: arm64
+    build-for: arm64
 version: "<version>"
 summary: A new markup-based typesetting system that is powerful and easy to learn.
 description: |
@@ -29,14 +34,31 @@ parts:
     rust-features:
       - vendor-openssl
     build-packages:
-       - pkg-config
+      - pkg-config
 
 apps:
   typst:
     command: "bin/typst"
+    environment:
+      # Point Typst to real user directories for packages
+      # SNAP_REAL_HOME is the vanilla HOME before snapd remapping
+      TYPST_PACKAGE_PATH: $SNAP_REAL_HOME/.local/share/typst/packages
+      TYPST_PACKAGE_CACHE_PATH: $SNAP_REAL_HOME/.cache/typst/packages
+      # Typst font path is a list that should have the snap real home (~/.local/share/fonts) and the system fonts (which are already read by default)
+      TYPST_FONT_PATHS: $SNAP_REAL_HOME/.local/share/fonts:/usr/share/fonts
     plugs:
       - desktop # access host fonts
       - network # retrieve packages
-      - home    # read sources and write output
+      - home # read sources and write output
       - removable-media # read sources on media
       - network-bind # serve live HTML in watch mode
+
+plugs:
+  dot-local-share-typst:
+    interface: personal-files
+    read:
+      - $HOME/.local/share/typst
+  dot-cache-typst:
+    interface: personal-files
+    write:
+      - $HOME/.cache/typst
