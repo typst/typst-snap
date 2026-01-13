@@ -16,7 +16,15 @@ env:
 
 jobs:
   buildSnap:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: amd64
+            runner: ubuntu-latest
+          - architecture: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     if: ${{ env.does-run }}
     steps:
       - uses: actions/checkout@v4
