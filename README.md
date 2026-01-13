@@ -6,16 +6,14 @@ repository. If we decide to offer this Snap permanently, they will be triggered
 by a Repository Dispatch from
 [Typst's main repository](https://github.com/typst/typst) instead.
 
-## Limitations
-Since this is an experimental release, there are some limitations:
+## Technical Notes
 
-- Only `amd64` is supported
-- Neither the `home` nor the `removable-media` interface autoconnect
+The snap is configured to use the real user home directory paths (via `SNAP_REAL_HOME`) for packages and fonts, rather than the sandboxed snap home directory. This allows Typst to access `~/.local/share/typst/packages` and `~/.cache/typst/packages` directly without requiring manual connection of the `personal-files` interfaces (`typst:dot-cache-typst` and `typst:dot-local-share-typst`).
+
+This means the snap works out-of-the-box with no additional configuration needed.
 
 ## Contributing
-Contributions are welcome, especially for adding more architectures and
-documentation. We expect `arm64` to be the most sought after `amd64`. Also let
-us know if you are or would be interested in using Typst as a Snap.
+Let us know if you are or would be interested in using Typst as a Snap.
 
 ## License
 This repository is licensed as Apache 2.0.
