@@ -52,6 +52,8 @@ apps:
       - home # read sources and write output
       - removable-media # read sources on media
       - network-bind # serve live HTML in watch mode
+      - dot-local-share-typst
+      - dot-cache-typst
 
 plugs:
   dot-local-share-typst:
