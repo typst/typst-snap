@@ -6,8 +6,6 @@ on:
     types: [typst-release]
 
 env:
-  # Do not run if the tag does not start with "v"
-  does-run: ${{ startsWith(github.event.client_payload.tag, 'v') }}
   # Choose the channel based on the tag. If the tag does not contain a hyphen,
   # it is a stable release. If the tag contains the string "rc", it is a
   # "candidate" release. If the tag contains the string "beta", it is a "beta"
@@ -25,7 +23,8 @@ jobs:
           - architecture: arm64
             runner: ubuntu-24.04-arm
     runs-on: ${{ matrix.runner }}
-    if: ${{ env.does-run }}
+    # Do not run if the tag does not start with "v"
+    if: ${{ startsWith(github.event.client_payload.tag, 'v') }}
     steps:
       - uses: actions/checkout@v4
       - run: ./template.sh ${{ github.event.client_payload.tag }}
